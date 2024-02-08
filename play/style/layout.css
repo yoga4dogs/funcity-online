@@ -1,0 +1,89 @@
+body {
+		background-image: url('../images/marbledark.jpg');
+		background-repeat: no-repeat;
+		background-attachment: fixed;
+		background-size: cover;
+}
+
+html { overflow-y: hidden; }
+
+#overall {
+		position: absolute;
+		left: 50%;
+		top: 45%;
+		transform: translate(-50%, -50%);
+		height: 700px;
+		margin-top: 2.5%;
+}
+
+#banner {
+		width: 740px;
+		box-shadow: 20px 20px 15px rgba(0,16,0,0.5);;
+}
+
+#main {
+		width: 710px;
+		height: 520px;
+		background-image: url('../images/tile2.jpg');
+		background-size: 740px 550px;
+		padding: 15px;
+		box-shadow: 20px 20px 15px rgba(0,16,0,0.5);;
+}
+
+#login {
+		position: absolute;
+		left: 50%;
+		top: 45%;
+		transform: translate(-50%, -50%);
+		margin-top: 1.5%;
+}
+
+#profile {
+	position: relative;
+	left: 100%;
+	top: 50%;
+}
+
+.mainDiv {
+		display: flex;
+		width: 679px;
+		margin: 0;
+		position: relative;
+		top: 50%;
+		transform: translateY(-50%);
+}
+
+a:link {
+		color: white;
+		background-color: transparent;
+		text-decoration: underline;
+}
+
+label {
+	display: inline-block;
+}
+
+.blink {
+		animation: blinker 0.75s linear infinite;
+		display: inline;
+}
+
+@keyframes blinker {
+		50% {
+		opacity: 0;
+		}
+}
+
+.webringDiv {
+    background-color: yellow;
+}
+
+.center {
+	text-align: center;
+}
+
+.centerDiv {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, 0%);
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<title>FUNCITY HEAVY INDUSTRIES S3 (SAND STORAGE SYSTEM)</title>
+<link rel="shortcut icon" type="image/jpg" href="../images/smile.gif"/>
+
+<style>
+	body {
+		color: white;
+		background-image: url('../play/images/marbledark.jpg');
+		background-size: cover;
+		font-family: MingLiU-ExtB, Microsoft Yi Baiti;
+	}
+	div.inline {
+		float:left; 
+	}
+</style>
+
+<center><h4>FUNCITY HEAVY INDUSTRIES S3 (SAND STORAGE SYSTEM)</h4></center>
+<div style='background-color: rgb(0 0 0 / 0.5); 
+	position: absolute; 
+	width: 1000px;
+	height: 860px;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translate(-40%, -50%);
+	transform: translate(-40%, -50%);'>
+	<canvas id="life" width="1000" height="800" style="cursor: crosshair;" onclick="mouseclick(event)" onmousemove="move(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)"></canvas>
+	</br>
+	<center>
+		Its sand.
+	</center>
+	<div class="slidecontainer" style='
+		background-color: rgb(0 0 0 / 0.5);
+		float: left;
+		position: absolute;
+		width: 256px;
+		right: 102%;
+		top: 0;
+		height: 860px;
+		'>
+		<div padding="20px">
+			Green/Purple<input type="checkbox" id="green_box">
+			<center><a href='./sand_shitty.html' style='color: white;'>Reset</a></center>
+		</div>
+	</div>
+	
+<script>
+	width = 1000;
+	height = 800;
+	m = document.getElementById("life").getContext("2d");
+	document.getElementById("life").width = width;
+	document.getElementById("life").height = height;
+	
+	green_checkbox = document.getElementById("green_box");
+	
+	mouseX = 0;
+	mouseY = 0;
+	mouseButton = 0;	
+	
+	max = 100;
+	size = 4;
+	
+	function mousedown(e) {
+		mouseButton = 1;
+	};
+	function mouseup(e) {
+		mouseButton = 0;
+	};
+	function mouseclick(e){
+		
+	};
+	function move(e){
+		mouseX = e.offsetX;	
+		mouseY = e.offsetY;	
+		
+		mouseX_grid = Math.round(mouseX / size) * size;
+		mouseY_grid = Math.round(mouseY / size) * size;
+	};
+	
+	function create(width, height) {
+		cells = [];
+		for (let iY = 0; iY < height; iY++) {
+			group = [];
+			for (let iX = 0; iX < width; iX++) {
+				if (Math.round(Math.random() * max) == max) {
+					cell_val = 1;
+				} else {
+					cell_val = 0;
+				}
+				group.push(cell_val);
+				
+			}
+			cells.push(group);
+		}
+	};
+	
+	function draw(x, y, c, s) {
+		m.fillStyle = c;
+		m.fillRect(x, y, s, s);
+	};
+	
+	function draw_cells(type) {
+		try {
+			cells[mouseY_grid][mouseX_grid] = type;
+			cells[mouseY_grid+size][mouseX_grid] = type;
+			cells[mouseY_grid-size][mouseX_grid] = type;
+			cells[mouseY_grid][mouseX_grid+size] = type;
+			cells[mouseY_grid][mouseX_grid-size] = type;
+			cells[mouseY_grid+size][mouseX_grid+size] = type;
+			cells[mouseY_grid-size][mouseX_grid-size] = type;
+			cells[mouseY_grid-size][mouseX_grid+size] = type;
+			cells[mouseY_grid+size][mouseX_grid-size] = type;
+		} catch {
+			return;
+		}
+	}
+	
+	function fall(x, y) {
+		try {
+			if (cells[y+size][x] == 0) {
+				new_cells[y+size][x] = cells[y][x];
+				new_cells[y][x] = 0;	
+			} else {
+				if (Math.round(Math.random()) == 1) {
+					if (cells[y+size][x+size] == 0) {
+						new_cells[y+size][x+size] = cells[y][x];
+						new_cells[y][x] = 0;
+					} else if (cells[y+size][x-size] == 0) {
+						new_cells[y+size][x-size] = cells[y][x];
+						new_cells[y][x] = 0;
+					}
+				} else {
+					if (cells[y+size][x-size] == 0) {
+						new_cells[y+size][x-size] = cells[y][x];
+						new_cells[y][x] = 0;
+					} else if (cells[y+size][x+size] == 0) {
+						new_cells[y+size][x+size] = cells[y][x];
+						new_cells[y][x] = 0;
+					}
+				}
+			}
+		}
+		catch(err) {
+			return;
+		}
+	};
+	
+	function update() {
+		green_checkbox_flag = green_checkbox.checked;
+		console.log(green_checkbox_flag);
+		if(mouseButton == 1) {
+			if (green_checkbox_flag == true) {
+				draw_cells(1);
+			} else {
+				draw_cells(2);
+			}
+		}
+		
+		m.clearRect(0, 0, width, height);
+		draw(0, 0, "#0a0a0a", Math.max(width, height));
+		
+		
+		new_cells = cells;
+	
+		for (let y = 0; y < cells.length; y++) {
+			for (let x = 0; x < cells[0].length; x++) {
+				if (cells[y][x] == 1) {
+					fall(x, y);
+				}
+			}
+		}
+		cells = new_cells;
+		for (let y = 0; y < cells.length; y++) {
+			for (let x = 0; x < cells[0].length; x++) {
+				if (cells[y][x] == 1) {
+					draw(x, y, "rgb("+Math.random()*255+", "+Math.random()*255+", "+Math.random()*255+")", size);
+					<!-- draw(x, y, "lime", size); -->
+				} else if (cells[y][x] == 2) {
+					<!-- draw(x, y, "rgb("+Math.random()*255+", "+Math.random()*255+", "+Math.random()*255+")", size); -->
+					draw(x, y, "darkviolet", size);
+				}
+			}
+		}
+		
+		m.font = "18px serif";
+		m.fillStyle = "gold";
+		m.fillText(mouseX + ", " + mouseY, mouseX + 8, mouseY - 8);
+		
+		requestAnimationFrame(update);
+	};
+	
+	create(width, height);
+	<!-- console.log(cells); -->
+	
+	update();
+</script>
+

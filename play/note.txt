@@ -1,0 +1,32 @@
+healing shop not working
+	can sleep in bathroom to restore hp
+
+need random enemy selection
+	from pool per zone
+		DONE
+	add colum for occurance chance/encounter rate?
+		done with robocop and killfucker
+	
+DONE need exp drops and stat upgrade page
+
+make page selecton locked to arena when in battle
+	KIND OF DONE, cant heal midfight
+
+add column in user table for player profile
+	profile picture selection on profile page
+	DONE
+	
+DONE fix movelist.php attack display
+DONE array to attack names
+DONE equip slots - two weapons
+	
+add in daily adventures
+	need add column in users
+	counter on fights/bathroom naps
+	way to reset at midnight
+	DONE
+		possibly change to fight consuming a turn
+		
+ability to upgrade weapons power
+	blacksmith shop spend funcoins to incr power
+	or a rare drop of blacksmith tokens

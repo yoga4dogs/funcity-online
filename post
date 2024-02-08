@@ -1,0 +1,13 @@
+#!/bin/bash
+
+now=`date`
+
+echo New Post
+
+read input
+
+sed -i '/INSERT-->/a '"</div><br>"'' /var/www/html/index.html
+sed -i '/INSERT-->/a '"<img src='./images/peter.png'/>"'' /var/www/html/index.html
+sed -i '/INSERT-->/a '"<a href='#$now'><i>$now</i></a><br>"'' /var/www/html/index.html
+sed -i '/INSERT-->/a '"$input<br>"'' /var/www/html/index.html
+sed -i '/INSERT-->/a '"<div id='$now'>"'' /var/www/html/index.html

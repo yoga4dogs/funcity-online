@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<title>FUNCITY HEAVY INDUSTRIES PARTICLE ACCELERATOR</title>
+<link rel="shortcut icon" type="image/jpg" href="../images/smile.gif"/>
+<!-- base script credit: Hunar Ahmad @ brainxyz -->
+<!-- modified by Funcity Heavy Industries -->
+<style>
+	body {
+		color: white;
+		background-image: url('../play/images/marbledark.jpg');
+		background-size: cover;
+		font-family: MingLiU-ExtB, Microsoft Yi Baiti;
+	}
+	
+	.slider {
+		width: 256px; height:10px;
+	}
+</style>
+
+<div style='background-color: rgb(0 0 0 / 0.5); 
+	position: absolute; 
+	width: 1000px;
+	height: 860px;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translate(-40%, -50%);
+	transform: translate(-40%, -50%);'>
+	<canvas id="life" width="1000" height="800" style="cursor: crosshair;" onclick="mouseclick(event)" onmousemove="move(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)"></canvas>
+
+	</br>
+	<center>
+		Top-slider is repulsion, bottom-slider is attraction. </br> 
+		Left-click to add Green particles. 
+	</center>
+	<div class="slidecontainer" style='
+		background-color: rgb(0 0 0 / 0.5);
+		float: left;
+		position: absolute;
+		right: 102%;
+		top: 0;
+		height: 860px;
+		'><div padding="20px">
+		<h4>FUNCITY HEAVY INDUSTRIES PARTICLE ACCELERATOR</h4>
+		<label>Distance</label></br>
+		<input type="range" min="0" max="1000" value="500" class="slider" id="distanceSlider" > </br>
+		<label>Multiplier</label></br>
+		<input type="range" min="0" max="2000" value="1500" class="slider" id="multiplierSlider" > </br>
+		Borders <input type="checkbox" id="borders"> </br></br>
+		Purple<->Purple </br>
+		<input type="range" min="0" max="1000" value="115" class="slider" id="purple-purple-repulse" > </br>
+		<input type="range" min="0" max="1000" value="120" class="slider" id="purple-purple-attract" > </br> 
+		Purple<->White </br>
+		<input type="range" min="0" max="1000" value="120" class="slider" id="purple-white-repulse" > </br>
+		<input type="range" min="0" max="1000" value="125" class="slider" id="purple-white-attract" > </br>
+		Purple<->Green </br>
+		<input type="range" min="0" max="1000" value="60" class="slider" id="purple-green-repulse" > </br>
+		<input type="range" min="0" max="1000" value="0" class="slider" id="purple-green-attract" > </br> </br> 
+		
+		White<->Purple </br>
+		<input type="range" min="0" max="1000" value="125" class="slider" id="white-purple-repulse" > </br>
+		<input type="range" min="0" max="1000" value="130" class="slider" id="white-purple-attract" > </br>
+		White<->White </br>
+		<input type="range" min="0" max="1000" value="125" class="slider" id="white-white-repulse" > </br>
+		<input type="range" min="0" max="1000" value="130" class="slider" id="white-white-attract" > </br> 
+		White<->Green </br>
+		<input type="range" min="0" max="1000" value="60" class="slider" id="white-green-repulse" > </br>
+		<input type="range" min="0" max="1000" value="0" class="slider" id="white-green-attract" > </br> </br> 
+		
+		Green<->Purple </br>
+		<input type="range" min="0" max="1000" value="10" class="slider" id="green-purple-repulse" > </br>
+		<input type="range" min="0" max="1000" value="0" class="slider" id="green-purple-attract" > </br>
+		Green<->White </br>
+		<input type="range" min="0" max="1000" value="10" class="slider" id="green-white-repulse" > </br>
+		<input type="range" min="0" max="1000" value="0" class="slider" id="green-white-attract" > </br> 
+		Green<->Green </br>
+		<input type="range" min="0" max="1000" value="135" class="slider" id="green-green-repulse" > </br>
+		<input type="range" min="0" max="1000" value="125" class="slider" id="green-green-attract" > </br></br>
+		<a href='./particle.html' style='color: white;'>Reset</a></br>
+		<a href='http://funcity-online.com/' style='color: white;'>Home</a>
+	</div>
+</div>
+<script>
+	m = document.getElementById("life").getContext("2d");
+	mouseX = 500;
+	mouseY = 400;
+	mouseButton = 0;
+	lastSliderVal = "";
+	
+	distanceSlider = document.getElementById("distanceSlider");
+	distanceSliderVal = distanceSlider.value;
+	multiplierSlider = document.getElementById("multiplierSlider");
+	multiplierSliderVal = multiplierSlider.value / 500 - 2;
+	borderCheckbox = document.getElementById("borders");
+	borderFlag = borderCheckbox.value;
+	
+	purplePurpleRepulse = document.getElementById("purple-purple-repulse");
+	purplePurpleRepulseVal = purplePurpleRepulse.value / 1000;
+	purplePurpleAttract = document.getElementById("purple-purple-attract");
+	purplePurpleAttractVal = purplePurpleAttract.value / 1000 * -1;
+	purpleWhiteRepulse = document.getElementById("purple-white-repulse");
+	purpleWhiteRepulseVal = purpleWhiteRepulse.value / 1000;
+	purpleWhiteAttract = document.getElementById("purple-white-attract");
+	purpleWhiteAttractVal = purpleWhiteAttract.value / 1000 * -1;
+	purpleGreenRepulse = document.getElementById("purple-green-repulse");
+	purpleGreenRepulseVal = purpleGreenRepulse.value / 1000;
+	purpleGreenAttract = document.getElementById("purple-green-attract");
+	purpleGreenAttractVal = purpleGreenAttract.value / 1000 * -1;
+	
+	whitePurpleRepulse = document.getElementById("white-white-repulse");
+	whitePurpleRepulseVal = whitePurpleRepulse.value / 1000;
+	whitePurpleAttract = document.getElementById("white-white-attract");
+	whitePurpleAttractVal = whitePurpleAttract.value / 1000 * -1;
+	whiteWhiteRepulse = document.getElementById("white-white-repulse");
+	whiteWhiteRepulseVal = whiteWhiteRepulse.value / 1000;
+	whiteWhiteAttract = document.getElementById("white-white-attract");
+	whiteWhiteAttractVal = whiteWhiteAttract.value / 1000 * -1;
+	whiteGreenRepulse = document.getElementById("white-green-repulse");
+	whiteGreenRepulseVal = whiteGreenRepulse.value / 1000;
+	whiteGreenAttract = document.getElementById("white-green-attract");
+	whiteGreenAttractVal = whiteGreenAttract.value / 1000 * -1;
+	
+	greenPurpleRepulse = document.getElementById("green-purple-repulse");
+	greenPurpleRepulseVal = greenPurpleRepulse.value / 1000;
+	greenPurpleAttract = document.getElementById("green-purple-attract");
+	greenPurpleAttractVal = greenPurpleAttract.value / 1000 * -1;
+	greenWhiteRepulse = document.getElementById("green-white-repulse");
+	greenWhiteRepulseVal = greenWhiteRepulse.value / 1000;
+	greenWhiteAttract = document.getElementById("green-white-attract");
+	greenWhiteAttractVal = greenWhiteAttract.value / 1000 * -1;
+	greenGreenRepulse = document.getElementById("green-green-repulse");
+	greenGreenRepulseVal = greenGreenRepulse.value / 1000;
+	greenGreenAttract = document.getElementById("green-green-attract");
+	greenGreenAttractVal = greenGreenAttract.value / 1000 * -1;
+	
+	draw = (x, y, c, s) => {
+		m.fillStyle = c;
+		m.fillRect(x, y, s, s);
+	};
+	
+	atoms = [];
+	atom = (x, y, c) => {
+		return { x: x, y: y, vx: 0, vy: 0, color: c };
+	};
+	
+	create = (number, color) => {
+		group = [];
+		for (let i = 0; i < number; i++) {
+			group.push(atom(Math.random() * 900 + 50, Math.random() * 700 + 50, color));
+			atoms.push(group[i]);
+		}
+		return group;
+	};
+	
+	rule = (atoms1, atoms2, g) => {
+		g *= multiplierSliderVal;
+		
+		for (let i = 0; i < atoms1.length; i++) {
+			fx = 0;
+			fy = 0;
+			for (let j = 0; j < atoms2.length; j++) {
+				a = atoms1[i];
+				b = atoms2[j];
+				dx = a.x - b.x;
+				dy = a.y - b.y;
+				d = Math.sqrt(dx * dx + dy * dy);
+				if (d > 0 && d < distanceSliderVal) {
+					F = (g * 1) / d;
+					fx += F * dx;
+					fy += F * dy;
+				}
+			}
+			a.vx = (a.vx + fx) * 0.25;
+			a.vy = (a.vy + fy) * 0.25;
+			a.x += a.vx;
+			a.y += a.vy;
+			if(borderFlag == true) {
+				if (a.x <= 0 ) { a.x = 0; }
+				if (a.x >= 1000) { a.x = 1000; }
+				if (a.x <= 0 || a.x >= 1000) { a.vx *= -1;  }
+				if (a.y <= 0 ) { a.y = 0; }
+				if (a.y >= 800) { a.y = 800; }
+				if (a.y <= 0 || a.y >= 800) { a.vy *= -1; }
+			} else {
+				if (a.x < 0 ) { a.x = 1000; }
+				if (a.x > 1000) { a.x = 0; }
+				if (a.y < 0 ) { a.y = 800; }
+				if (a.y > 800) { a.y = 0; }
+			}
+		}
+	};
+	
+	function mousedown(e) {
+		mouseButton = 1;
+	}
+	function mouseup(e) {
+		mouseButton = 0;
+	}
+	
+	function mouseclick(e){
+		mouseX = e.offsetX;	
+		mouseY = e.offsetY;
+		green.push(atom(mouseX, mouseY, "lime", 0, 0));
+		atoms.push(green[green.length-1]);		
+	}
+	function move(e){
+		mouseX = e.offsetX + Math.random();	
+		mouseY = e.offsetY + Math.random();	
+		if (mouseButton == 1) {
+			green.push(atom(mouseX, mouseY, "lime", 0, 0));
+			atoms.push(green[green.length-1]);
+		}
+	}
+	
+	distanceSlider.oninput = function() {
+		distanceSliderVal = distanceSlider.value;
+		lastSliderVal = distanceSliderVal;
+	}
+	multiplierSlider.oninput = function() {
+		multiplierSliderVal = multiplierSlider.value / 500 - 2;
+		lastSliderVal = multiplierSliderVal;
+	}
+	borderCheckbox.oninput = function() {
+		borderFlag = borderCheckbox.checked;
+		lastSliderVal = borderFlag;
+	}
+	
+	purplePurpleRepulse.oninput = function() {
+		purplePurpleRepulseVal = purplePurpleRepulse.value / 1000;
+		lastSliderVal = purplePurpleRepulseVal;
+	}
+	purplePurpleAttract.oninput = function() {
+		purplePurpleAttractVal = purplePurpleAttract.value / 1000 * -1;
+		lastSliderVal = purplePurpleAttractVal;
+	}
+	purpleWhiteRepulse.oninput = function() {
+		purpleWhiteRepulseVal = purpleWhiteRepulse.value / 1000;
+		lastSliderVal = purpleWhiteRepulseVal;
+	}
+	purpleWhiteAttract.oninput = function() {
+		purpleWhiteAttractVal = purpleWhiteAttract.value / 1000 * -1;
+		lastSliderVal = purpleWhiteAttractVal;
+	}
+	purpleGreenRepulse.oninput = function() {
+		purpleGreenRepulseVal = purpleGreenRepulse.value / 1000;
+		lastSliderVal = purpleGreenRepulseVal;
+	}
+	purpleGreenAttract.oninput = function() {
+		purpleGreenAttractVal = purpleGreenAttract.value / 1000 * -1;
+		lastSliderVal = purpleGreenAttractVal;
+	}
+	
+	whitePurpleRepulse.oninput = function() {
+		purplePurpleRepulseVal = whitePurpleRepulse.value / 1000;
+		lastSliderVal = purplePurpleRepulseVal;
+	}
+	whitePurpleAttract.oninput = function() {
+		whitePurpleAttractVal = whitePurpleAttract.value / 1000 * -1;
+		lastSliderVal = whitePurpleAttractVal;
+	}
+	whiteWhiteRepulse.oninput = function() {
+		whiteWhiteRepulseVal = whiteWhiteRepulse.value / 1000;
+		lastSliderVal = whiteWhiteRepulseVal;
+	}
+	whiteWhiteAttract.oninput = function() {
+		whiteWhiteAttractVal = whiteWhiteAttract.value / 1000 * -1;
+		lastSliderVal = whiteWhiteAttractVal;
+	}
+	whiteGreenRepulse.oninput = function() {
+		whiteGreenRepulseVal = whiteGreenRepulse.value / 1000;
+		lastSliderVal = whiteGreenRepulseVal;
+	}
+	whiteGreenAttract.oninput = function() {
+		whiteGreenAttractVal = whiteGreenAttract.value / 1000 * -1;
+		lastSliderVal = whiteGreenAttractVal;
+	}
+	
+	greenPurpleRepulse.oninput = function() {
+		greenPurpleRepulseVal = greenPurpleRepulse.value / 1000;
+		lastSliderVal = greenPurpleRepulseVal;
+	}
+	greenPurpleAttract.oninput = function() {
+		greenPurpleAttractVal = greenPurpleAttract.value / 1000 * -1;
+		lastSliderVal = greenPurpleAttractVal;
+	}
+	greenWhiteRepulse.oninput = function() {
+		greenWhiteRepulseVal = greenWhiteRepulse.value / 1000;
+		lastSliderVal = greenWhiteRepulseVal;
+	}
+	greenWhiteAttract.oninput = function() {
+		greenWhiteAttractVal = greenWhiteAttract.value / 1000 * -1;
+		lastSliderVal = greenWhiteAttractVal;
+	}
+	greenGreenRepulse.oninput = function() {
+		greenGreenRepulseVal = greenGreenRepulse.value / 1000;
+		lastSliderVal = greenGreenRepulseVal;
+	}
+	greenGreenAttract.oninput = function() {
+		greenGreenAttractVal = greenGreenAttract.value / 1000 * -1;
+		lastSliderVal = greenGreenAttractVal;
+	}
+		
+	white = create(1000, "white");
+	purple = create(1000, "darkviolet");
+	<!-- gold = create(250, "gold"); -->
+	green = create(0, "lime");
+	
+	update = () => {
+		<!-- (color, chases, -negative) -->
+		<!-- (color, repelled by, positive) -->
+		
+		if (purplePurpleRepulseVal != 0) {
+			rule(purple, purple, purplePurpleRepulseVal)
+		}
+		if (purplePurpleAttractVal != 0) {
+			rule(purple, purple, purplePurpleAttractVal)
+		}
+		if (purpleWhiteRepulseVal != 0) {
+			rule(purple, white, purpleWhiteRepulseVal)
+		}
+		if (purpleWhiteAttractVal != 0) {
+			rule(purple, white, purpleWhiteAttractVal)
+		}
+		if (purpleGreenRepulseVal != 0) {
+			rule(purple, green, purpleGreenRepulseVal)
+		}
+		if (purpleGreenAttractVal != 0) {
+			rule(purple, green, purpleGreenAttractVal)
+		}
+		
+		if (whitePurpleRepulseVal != 0) {
+			rule(white, purple, whitePurpleRepulseVal)
+		}
+		if (whitePurpleAttractVal != 0) {
+			rule(white, purple, whitePurpleAttractVal)
+		}
+		if (whiteWhiteRepulseVal != 0) {
+			rule(white, white, whiteWhiteRepulseVal)
+		}
+		if (whiteWhiteAttractVal != 0) {
+			rule(white, white, whiteWhiteAttractVal)
+		}
+		if (whiteGreenRepulseVal != 0) {
+			rule(white, green, whiteGreenRepulseVal)
+		}
+		if (whiteGreenAttractVal != 0) {
+			rule(white, green, whiteGreenAttractVal)
+		}
+		
+		if (greenPurpleRepulseVal != 0) {
+			rule(green, purple, greenPurpleRepulseVal)
+		}
+		if (greenPurpleAttractVal != 0) {
+			rule(green, purple, greenPurpleAttractVal)
+		}
+		if (greenWhiteRepulseVal != 0) {
+			rule(green, white, greenWhiteRepulseVal)
+		}
+		if (greenWhiteAttractVal != 0) {
+			rule(green, white, greenWhiteAttractVal)
+		}
+		if (greenGreenRepulseVal != 0) {
+			rule(green, green, greenGreenRepulseVal)
+		}
+		if (greenGreenAttractVal != 0) {
+			rule(green, green, greenGreenAttractVal)
+		}
+		
+		<!-- rule(gold, green, -10) -->
+		
+			
+		m.clearRect(0, 0, 1000, 800);
+		draw(0, 0, "#0a0a0a", 1000);
+		for (i = 0; i < atoms.length; i++) {
+			if (atoms[i].color == "white") {
+				size = 1;
+			} else if (atoms[i].color == "lime") {
+				size = 3;
+			} else if (atoms[i].color == "darkviolet") {
+				size = 2;
+			} else {
+				size = 1;
+			}
+			draw(atoms[i].x, atoms[i].y, atoms[i].color, size);
+		}
+		m.font = "18px serif";
+		m.fillStyle = "gold";
+		m.fillText(lastSliderVal, mouseX, mouseY);
+		requestAnimationFrame(update);
+	};
+	
+	update();
+</script>
+

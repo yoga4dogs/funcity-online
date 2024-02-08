@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<title>FUNCITY HEAVY INDUSTRIES S3 (SIMPLE SAND SIMULATION)</title>
+<link rel="shortcut icon" type="image/jpg" href="../images/smile.gif"/>
+
+<style>
+	body {
+		color: white;
+		background-image: url('../play/images/marbledark.jpg');
+		background-size: cover;
+		font-family: MingLiU-ExtB, Microsoft Yi Baiti;
+	}
+	div.inline {
+		float:left; 
+	}
+</style>
+
+<div style='background-color: rgb(0 0 0 / 0.5); 
+	position: absolute; 
+	width: 1000px;
+	height: 860px;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translate(-40%, -50%);
+	transform: translate(-40%, -50%);'>
+	<canvas id="life" width="1000" height="800" style="cursor: crosshair;" onclick="mouseclick(event)" onmousemove="move(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)"></canvas>
+	</br>
+	<center>
+		Its sand.
+	</center>
+	<div class="slidecontainer" style='
+		background-color: rgb(0 0 0 / 0.5);
+		float: left;
+		position: absolute;
+		width: 256px;
+		right: 102%;
+		top: 0;
+		height: 860px;
+		'>
+		<div style="padding: 10px;">
+			<h4>FUNCITY HEAVY INDUSTRIES S3 (SIMPLE SAND SIMULATION)</h4>
+			<input type="button" value="Sand" onclick="getvalue()"> <input type="button" value="Solid" onclick="getvalue()"> <input type="button" value="Water" onclick="getvalue()"> <input type="button" value="Plant" onclick="getvalue()"> </br></br>
+			<input type="button" value="Erase" onclick="getvalue()"> </br></br>
+			Rain <input type="checkbox" id="rain_switch"></br></br>
+			Play/Pause <input type="checkbox" id="play_switch" checked></br></br>
+			<a href='./sand.html' style='color: white;'>Reset</a> </br></br>
+			<a href='http://funcity-online.com/' style='color: white;'>Home</a>
+		</div>
+	</div>
+	
+<script>
+	width = 1000;
+	height = 800;
+	size = 4;
+
+	rain_switch = document.getElementById("rain_switch");
+	play_switch = document.getElementById("play_switch");
+	document.getElementById("life").width = width;
+	document.getElementById("life").height = height;
+	m = document.getElementById("life").getContext("2d");
+	mouseX = width/2;
+	mouseY = height/2;
+	mouseButton = 0;	
+	paint_type = 1;
+	
+	function mousedown(e) {
+		mouseButton = 1;
+	};
+	function mouseup(e) {
+		mouseButton = 0;
+	};
+	function mouseclick(e){
+	};
+	function move(e){
+		mouseX = e.offsetX;	
+		mouseY = e.offsetY;	
+		mouseX_grid = Math.round(mouseX / size) * size;
+		mouseY_grid = Math.round(mouseY / size) * size;
+	};
+	
+	function getvalue() {
+		paint_type = event.target.value;
+		switch (event.target.value) {
+			case "Erase":
+				paint_type = 0;
+				break;
+			case "Sand":
+				paint_type = 1;
+				break;
+			case "Solid" :
+				paint_type = 2;
+				break;
+			case "Water":
+				paint_type = 3;
+				break;
+			case "Plant":
+				paint_type = 4;
+				break;
+		}
+	}
+	function clamp (val, min, max) {
+		return Math.min(Math.max(val, min), max);
+	}
+	
+	function create(width, height) {
+		cells = [];
+		for (let iY = 0; iY < height; iY++) {
+			group = [];
+			for (let iX = 0; iX < width; iX++) {
+				cell_val = 0;
+				group.push(cell_val);
+			}
+			cells.push(group);
+		}
+	};
+	
+	function clear_canvas() {
+		m.clearRect(0, 0, width, height);
+		draw(0, 0, "#0a0a0a", Math.max(width, height));
+	};
+	
+	function draw(x, y, c, s) {
+		m.fillStyle = c;
+		m.fillRect(x, y, s, s);
+	};
+	
+	function paint_cells(type) {
+		try {
+			cells[mouseY_grid][mouseX_grid] = type;
+			cells[mouseY_grid+size][mouseX_grid] = type;
+			cells[mouseY_grid-size][mouseX_grid] = type;
+			cells[mouseY_grid][mouseX_grid+size] = type;
+			cells[mouseY_grid][mouseX_grid-size] = type;
+			cells[mouseY_grid+size][mouseX_grid+size] = type;
+			cells[mouseY_grid-size][mouseX_grid-size] = type;
+			cells[mouseY_grid-size][mouseX_grid+size] = type;
+			cells[mouseY_grid+size][mouseX_grid-size] = type;
+		} catch {
+			return;
+		}
+	}
+	
+	function fall(x, y, type) {
+		try {
+			<!-- sand through water -->
+			if(cells[y][x] == 1) {
+				if (cells[clamp(y+size, 0, 799)][x] == 3) {
+					new_cells[y+size][x] = cells[y][x];
+					new_cells[y][x] = 3;
+				}
+			}
+			if (cells[clamp(y+size, 0, 799)][x] == 0) {
+				new_cells[y+size][x] = cells[y][x];
+				new_cells[y][x] = 0;	
+			} else {
+				if (cells[y+size][x+size] == 0) {
+					new_cells[y+size][x+size] = cells[y][x];
+					new_cells[y][x] = 0;
+				} else if (cells[y+size][x-size] == 0) {
+					new_cells[y+size][x-size] = cells[y][x];
+					new_cells[y][x] = 0;
+				<!-- water -->
+				} else if (cells[y][x+size] == 0 && cells[y][x] == 3) {
+					new_cells[y][x+size] = cells[y][x];
+					new_cells[y][x] = 0;
+				} else if (cells[y][x-size] == 0 && cells[y][x] == 3) {
+					new_cells[y][x-size] = cells[y][x];
+					new_cells[y][x] = 0;
+				}
+			}
+		}
+		catch(err) {
+			return;
+		}
+	};
+	
+	function grow(x, y, type) {
+		try {
+			if (cells[y-size][x] == 3) {
+				new_cells[y-size][x] = 4;
+			}
+			if (cells[y-size][x+size] == 3) {
+				new_cells[y-size][x+size] = 4;
+			}
+			if (cells[y-size][x-size] == 3) {
+				new_cells[y-size][x-size] = 4;
+			}
+			
+		} catch (err) {
+			return;
+		}
+	}
+	
+	function rain() {
+		for (let iX = 0; iX < width; iX = iX + size) {
+			if (Math.round(Math.random() * 200) == 0) {
+				cells[0][iX] = 3;
+			}
+		}
+	}
+	
+	function update() {
+		clear_canvas();
+		if(mouseButton == 1) {
+			paint_cells(paint_type);
+		}
+		
+		for (let y = 0; y < cells.length; y++) {
+			for (let x = 0; x < cells[0].length; x++) {
+				switch (cells[y][x]) {
+					case 1:
+						<!-- draw(x, y, "rgb("+Math.random()*255+", "+Math.random()*255+", "+Math.random()*255+")", size); -->
+						draw(x, y, "hotpink", size);
+						break;
+					case 2:
+						draw(x, y, "darkviolet", size);
+						break;
+					case 3:
+						draw(x, y, "dodgerblue", size);
+						break;
+					case 4:
+						draw(x, y, "lime", size);
+						break;
+				}
+				
+			}
+		}
+		
+		if(play_switch.checked == true) {
+			if(rain_switch.checked == true) {
+				rain();
+			}
+			new_cells = cells;
+			for (let y = 0; y < cells.length; y++) {
+				for (let x = 0; x < cells[0].length; x++) {
+					dY = cells.length - 1 - y;
+					switch (cells[dY][x]) {
+						case 0:
+							break;
+						case 1:
+							fall(x, dY, cells[y][x]);
+							break;
+						case 2:
+							break;
+						case 3:
+							fall(x, dY, cells[y][x]);
+							break;
+						case 4:
+							grow(x, dY, cells[y][x]);
+							break;
+					}
+				}
+			}
+			cells = new_cells;
+		}
+		
+		m.font = "18px serif";
+		m.fillStyle = "gold";
+		m.fillText(mouseX + ", " + mouseY, mouseX + 8, mouseY - 8);
+		
+		requestAnimationFrame(update);
+	};
+	
+	create(width, height);	
+	update();
+</script>
+
