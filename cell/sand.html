@@ -557,11 +557,9 @@
 						case 2:
 							break;
 						case 3:
-							for (let i = 0; i < 2; i++) {
-								fall(dX, dY, cells[y][x]);
-								fall_sand(dX, dY, cells[y][x]);
-								flow(dX, dY, cells[y][x]);
-							}
+							fall(dX, dY, cells[y][x]);
+							fall_sand(dX, dY, cells[y][x]);
+							flow(dX, dY, cells[y][x]);
 							break;
 						case 4:
 							grow(dX, dY, cells[y][x]);
