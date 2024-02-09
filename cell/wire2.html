@@ -167,15 +167,17 @@
 		}
 		
 		for (let i = 0; i < cells.length; i++) {
+            let x =  0;
+            let y = 0;
 			switch (cells[i]) {
 				case 1:
-					draw(i*size, i*size, "dodgerblue", size);
+					draw(x, y, "dodgerblue", size);
 					break;
 				case 2:
-					draw(i*size, i*size, "crimson", size);
+					draw(x, y, "crimson", size);
 					break;
 				case 3:
-					draw(i*size, i*size, "gold", size);
+					draw(x, y, "gold", size);
 					break;
 			}
 		}
