@@ -40,9 +40,6 @@
 		transform: translateY(-50%);
 	}
 
-	.bannerDiv {
-	}
-
 	.smileDiv {
 		float: right;
 		margin-top: 25px;
@@ -78,6 +75,11 @@
 		background-color: yellow;
 	}
 
+	span {
+		padding-top: 10px;
+		cursor: pointer;
+	}
+
 	a:link {
 		color: black;
 		background-color: transparent;
@@ -100,10 +102,11 @@
 	}
 
 	.dropdown-content {
+		text-align: left;
 		display: none;
 		position: absolute;
 		background-color: yellow;
-		min-width: 100px;
+		min-width: 160px;
 		box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 		padding: 2px 2px;
 		z-index: 1;
@@ -112,13 +115,34 @@
 	.dropdown:hover .dropdown-content {
 		display: block;
 	}
+
+	.dropdown2 {
+		position: relative;
+	 	display: inline-block;
+	}
+
+	.dropdown-content2 {
+		text-align: left;
+		display: none;
+		position: absolute;
+		background-color: yellow;
+		left: 100%;
+		top: -10%;
+		min-width: 160px;
+		box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		padding: 2px 2px;
+		z-index: 1;
+	}
+
+	.dropdown2:hover .dropdown-content2 {
+		display: block;
+	}
 	
 </style>
 </head>
 
 <body>
 <center>
-
 <div class="badDiv">
 	<div class="bannerDiv">
 	  <!-- <a href="index.php"><img src="./images/under-construction.gif" style="width: 614px;"></img></a> -->
@@ -130,55 +154,66 @@
 	<a href='http://funcity-online.com/play/' target="_blank"><img src='./images/PLAY FUNCITY-ONLINE.png' height='36px'/></a></br></br>
 	<div class="webringDiv">
                 <div class="dropdown">
-					<span>GAMES</span>
+					<span>GAMES</span><br>
 					<div class="dropdown-content">
-						<p><a href="http://funcity-online.com/play" target="_blank">FUNCITY-ONLINE</a></p>
-						----------------
-						<p><a href="./town.html" target="_blank">FUNTOWN</a></p>
-						<p><a href="./quake.php">CHURCH.BSP</a></p>
-						<p><a href="https://www.youtube.com/watch?v=wsHljn3VuBs" target="_blank">BADLANDS (trailer)</a></p>
+						<span><a href="http://funcity-online.com/play" target="_blank">FUNCITY-ONLINE</a></span><br>
+						--------------------<br>
+						<span><a href="./town.html" target="_blank">FUNTOWN</a></span><br>
+						<span><a href="./quake.php">CHURCH.BSP</a></span><br>
+						<span><a href="https://www.youtube.com/watch?v=wsHljn3VuBs" target="_blank">BADLANDS (trailer)</a></span><br>
 					</div>
                 </div> |
 				<div class="dropdown">
-					<span>WEB</span>
+					<span>WEB</span><br>
 					<div class="dropdown-content">
-						<p><a href="./cell/sand.html" target="_blank">FALLING SAND</a></p>
-						<p><a href="./cell/wire.html" target="_blank">WIREWORLD</a></p>
-						<p><a href="./cell/life.html" target="_blank">LIFE</a></p>
-						<p><a href="./cell/particle.html" target="_blank">PARTICLE SIM</a></p>
-						----------------
-						<p><a href="./yt-43/" target="_blank">YT -> 4:3</a></p>
+						<div class="dropdown2"><span>CELLULAR AUTOMATA...</span><br>
+							<div class="dropdown-content2">
+								<span><a href="./cell/sand.html" target="_blank">FALLING SAND</a></span><br>
+								<span><a href="./cell/wire.html" target="_blank">WIREWORLD</a></span><br>
+								<span><a href="./cell/life.html" target="_blank">LIFE</a></span><br>
+							</div>
+						</div>
+						<span><a href="./cell/particle.html" target="_blank">PARTICLE SIM</a></span><br>
+						--------------------<br>
+						<span><a href="./yt-43/" target="_blank">YT -> 4:3</a></span><br>
 					</div>
                 </div> |
 				<div class="dropdown">
-					<span>MUSIC</span>
+					<span>MUSIC</span><br>
 					<div class="dropdown-content">
-						<p><a href="https://holynectar.bandcamp.com" target="_blank">BANDCAMP</a></p>
-						<p><a href="https://soundcloud.com/holynectar" target="_blank">SOUNDCLOUD</a></p>
-						----------------
-						<p><a href="https://djedgarhoover.bandcamp.com" target="_blank">DJ EDGAR HOOVER</a></p>
+						<span><a href="https://holynectar.bandcamp.com" target="_blank">BANDCAMP</a></span><br>
+						<span><a href="https://soundcloud.com/holynectar" target="_blank">SOUNDCLOUD</a></span><br>
+						--------------------<br>
+						<span><a href="https://djedgarhoover.bandcamp.com" target="_blank">DJ EDGAR HOOVER</a></span><br>
 					</div>
                 </div> |
                 <div class="dropdown">
-					<span> 3D</span>
+					<span> 3D</span><br>
 					<div class="dropdown-content">
-						<p><a href="./tokyo.php">TOKYO</a></p>
-						<p><a href="./3dmisc.php">MISC 3D</a></p>
+						<span><a href="./tokyo.php">TOKYO</a></span><br>
+						<span><a href="./3dmisc.php">MISC 3D</a></span><br>
 					</div>
                 </div>
                 ||
                 <div class="dropdown">
-					<span>ABOUT ME</span>
+					<span>LINKS</span><br>
 					<div class="dropdown-content">
-							<p><img src="./images/calvin.jpg"/></p>
-					</div>
-                </div> |
-                <div class="dropdown">
-					<span>LINKS</span>
+							<span><a href="https://www.youtube.com/user/yoga4dogs" target="_blank">YOUTUBE</a></span><br>
+							--------------------<br>
+								<div class="dropdown2"><span>WEBRING</span><br>
+									<div class="dropdown-content2">
+										<span><a href="http://speedboatparadiseisland.com/" target="_blank">speedboat paradise island</a></span><br>
+										--------------------<br>
+										<span><a href="https://www.mcdonalds.com" target="_blank">mcdonalds.com</a></span>
+									</div>
+								</div>
+							</div>
+                		</div>
+				|
+				<div class="dropdown">
+					<span>ABOUT ME</span><br>
 					<div class="dropdown-content">
-							<p><a href="https://www.youtube.com/user/yoga4dogs" target="_blank">YOUTUBE</a></p>
-							----------------
-							<p><a href="http://speedboatparadiseisland.com/" target="_blank">speedboat paradise island</a></p>
+							<span><img src="./images/calvin.jpg" width="200px"/></span><br>
 					</div>
                 </div>
         </div>
