@@ -39,10 +39,12 @@
 		'>
 		<div style="padding: 10px;">
 			<h4>FUNCITY HEAVY INDUSTRIES PRIMORDIAL SOUP</h4>
-			<img src='../images/hat_walk.gif'/> <br>
-			<input type="button" value="Clear" onclick="getvalue()"> <br><br>
-			Play/Pause <input type="checkbox" id="play_switch" checked><br><br>
-			<a href='./life.html' style='color: white;'>Reset</a> <br><br>
+			<img src='../images/hat_walk.gif'/> <br><br>
+			<label>Speed</label> </br>
+			<input type="range" min="0" max="32" value="16" id="slider_speed" > </br>
+			<label>Play/Pause</label> <input type="checkbox" id="play_switch" checked><br><br>
+			<label style="display: inline-block; width:60px;">Paint:</label><input type="button" value="Live" onclick="getvalue()"> <input type="button" value="Dead" onclick="getvalue()"> <br><br>
+			<label style="display: inline-block; width:60px;">Screen:</label><input type="button" value="Clear" onclick="getvalue()"> <input type="button" value="Random" onclick="getvalue()"> <br><br>
 			<a href='http://funcity-online.com/' style='color: white;'>Home</a>
 		</div>
 	</div>
@@ -63,12 +65,15 @@
 	mouseY_grid = Math.round(mouseY / size);
 	mouseButton = 0;
 	
-	speed = 8;
+	speed = 32-document.getElementById("slider_speed").value;
 	step_timer = 0;
-	paint_cell_id = 3;
+	paint_type = 1;
 	
 	function getvalue() {
+		if (event.target.value == "Live") { paint_type = 1; }
+		if (event.target.value == "Dead") { paint_type = 0; }
 		if (event.target.value == "Clear") { clear(); }
+		if (event.target.value == "Random") { cells = create_random(width, height); }
 	}
 
 	function clamp (val, min, max) {
@@ -88,7 +93,7 @@
 		mouseButton = 0;
 	};
 	function mouseclick(e){
-		cells[mouseY_grid][mouseX_grid] = 1;
+		cells[mouseY_grid][mouseX_grid] = paint_type;
 	};
 	function move(e){
 		mouseX = e.offsetX - size/2;	
@@ -103,6 +108,19 @@
 			group = [];
 			for (let iX = 0; iX < width/size; iX++) {
 				cell_val = 0;
+				group.push(cell_val);
+			}
+			create_cells.push(group);
+		}
+		return create_cells;
+	};
+
+	function create_random(width, height) {
+		let create_cells = [];
+		for (let iY = 0; iY < height/size; iY++) {
+			group = [];
+			for (let iX = 0; iX < width/size; iX++) {
+				cell_val = Math.round(Math.random()*3);
 				group.push(cell_val);
 			}
 			create_cells.push(group);
@@ -126,7 +144,7 @@
 	};
 	
 	function paint_cells(type) {
-		cells[mouseY_grid][mouseX_grid] = 1;
+		cells[mouseY_grid][mouseX_grid] = paint_type;
 	}
 	
 	function count_neighbors(x,y){
@@ -149,7 +167,7 @@
 	function update() {
 		clear_canvas();
 		if(mouseButton == 1) {
-			paint_cells(paint_cell_id);
+			paint_cells(paint_type);
 		}
 		
 		for (let y = 0; y < cells.length; y++) {
@@ -163,6 +181,7 @@
 			}
 		}
 		if(play_switch.checked == true && step_timer == 0) {
+			speed = 33-document.getElementById("slider_speed").value;
 			new_cells = create(width, height);
 			for (let y = 0; y < cells.length; y++) {
 				for (let x = 0; x < cells[0].length; x++) {
