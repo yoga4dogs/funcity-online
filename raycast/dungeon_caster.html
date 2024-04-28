@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+    <title>FUNCITY HEAVY INDUSTRIES RAYCAST DUNGEON</title>
+    <link rel="shortcut icon" type="image/jpg" href="../images/smile.gif"/>
+
+    <style>
+        body {
+            color: white;
+            background-image: url('../play/images/marbledark.jpg');
+            background-size: cover;
+            font-family: MingLiU-ExtB, Microsoft Yi Baiti;
+        }
+        div.inline {
+            float:left; 
+        }
+    </style>
+    <body>
+        <div style='background-color: rgba(0, 0, 0, 0.5); 
+            position: absolute; 
+            width: 1008px;
+            height: auto ;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -55%);
+            transform: translate(-50%, -55%);'>
+        <canvas id="overhead_view" width="400px" height="400px"></canvas>
+        <canvas id="pov_view" width="400px" height="400px"></canvas>
+        <br>
+        <center>
+            <label>FOV:</label><input type="range" min="1" max="360" value="66" id="fov_slider" > </br>
+            WASD + Arrow keys to move.<br>
+            <a href="http://funcity-online.com/" style='color: white;'>Home</a>
+        </center>
+        </div>
+
+        <script>
+            
+            map_width = 32;
+            map_height = 32;
+            size = 1;
+            width = {
+                screen: 400,
+                grid: map_width
+            }
+            height = {
+                screen: 400,
+                grid: map_height
+            }
+            grid_size = height.screen / height.grid;
+            scale = size*8;
+            rand_seed = 0.4;
+            proc_loops = 8;
+
+            document.getElementById("overhead_view").width = width.screen;
+            document.getElementById("overhead_view").height = height.screen;
+            overhead = document.getElementById("overhead_view").getContext("2d");
+            document.getElementById("pov_view").width = width.screen*1.5;
+            document.getElementById("pov_view").height = height.screen;
+            pov = document.getElementById("pov_view").getContext("2d");
+            pov.scale(1.5, 1);
+
+            fov_slider = document.getElementById("fov_slider");
+            fov_slider.oninput = function() {
+                player.fov = fov_slider.value;
+            }
+
+            // keyboard input
+            // i read this on a blog or something
+            key = {
+                pressed: {},
+                LUP: 38,
+                LLEFT: 37,
+                LDOWN: 40,
+                LRIGHT: 39,
+                UP: 87, /* W */
+                LEFT: 65, /* A */
+                DOWN: 83, /* S */
+                RIGHT: 68, /* D */
+                isDown: function(keyCode) {
+                    return this.pressed[keyCode];
+                },
+                onDown: function(event) {
+                    this.pressed[event.keyCode] = true;
+                },
+                onUp: function(event) {
+                    delete this.pressed[event.keyCode];
+                }
+            };
+            document.addEventListener('keyup', function(event) { key.onUp(event); }, false);
+            document.addEventListener('keydown', function(event) { key.onDown(event); }, false);
+
+            
+            map = {
+                layout: [],
+                draw_map: function() {
+                    for(y=0; y < height.grid; y++) {
+                        for(x=0; x < width.grid; x++) {
+                            if(map.layout[width.grid*y+x]==1) { draw.square(overhead, x*grid_size, y*grid_size, "RosyBrown", grid_size); }
+                        }
+                    }
+                }
+            };
+            
+            player = {
+                x: width.screen-grid_size*1.5,
+                y: height.screen-grid_size*1.5,
+                dir: 235,
+                speed: 0.75,
+                turn_speed: 0.66,
+                size: 4, /* visual only */
+                fov: 72,
+                fov_density: 8,
+                ray_view: [],
+                draw: function() { 
+                    draw.square(overhead, player.x-player.size/2, player.y-player.size/2, "red", player.size);
+                    this.draw_pointer();
+                },
+                draw_pointer: function() {
+                    const pointer_rotation = rotate(player.x, player.y, player.x+10, player.y, player.dir);
+                    draw.line(overhead, player.x, player.y, pointer_rotation[0], pointer_rotation[1], "blue", 1);
+                },
+                move: function(direction) {
+                    const aiming_point = rotate(player.x, player.y, player.x+player.speed*direction, player.y, player.dir);
+                    if (check_pos(aiming_point[0], aiming_point[1]).tile_val != 1) {
+                        player.x = aiming_point[0];
+                        player.y = aiming_point[1];
+                    }
+                },
+                strafe: function(direction) {
+                    const strafe_point = rotate(player.x, player.y, player.x+player.speed*direction, player.y, player.dir-90);
+                    if (check_pos(strafe_point[0], strafe_point[1]).tile_val != 1) {
+                        player.x = strafe_point[0];
+                        player.y = strafe_point[1];
+                    }
+                },
+                turn: function(direction) {
+                    player.dir = (player.dir-player.turn_speed*direction);
+                },
+                look: {
+                    angle: 0,
+                    upDown: function(direction) {
+                        this.angle = clamp(this.angle + direction*3, -height.screen/3, height.screen/3);
+                    }
+                },
+                update: function() {
+                    if (key.isDown(key.UP) && key.isDown(key.LEFT)) {
+                        this.move(0.75);
+                        this.strafe(-0.5);
+                    } else if (key.isDown(key.UP) && key.isDown(key.RIGHT)) {
+                        this.move(0.75);
+                        this.strafe(0.5);
+                    } else if (key.isDown(key.DOWN) && key.isDown(key.LEFT)) {
+                        this.move(-0.75);
+                        this.strafe(-0.5);
+                    } else if (key.isDown(key.DOWN) && key.isDown(key.RIGHT)) {
+                        this.move(-0.75);
+                        this.strafe(0.5);
+                    } else {
+                        if (key.isDown(key.UP)) this.move(1);
+                        if (key.isDown(key.LEFT)) this.strafe(-1);
+                        if (key.isDown(key.DOWN)) this.move(-1);
+                        if (key.isDown(key.RIGHT)) this.strafe(1);
+                    }
+                    if (key.isDown(key.LUP)) this.look.upDown(1);
+                    if (key.isDown(key.LLEFT)) this.turn(-1);
+                    if (key.isDown(key.LDOWN)) this.look.upDown(-1);
+                    if (key.isDown(key.LRIGHT)) this.turn(1);
+                    this.ray_test();
+                    this.draw();
+                },
+                // this is such a fucking mess i hate it
+                ray_test: function() {
+                    ray_view = [];
+                    let last_color = [];
+                    for(d = 0 ; d < player.fov*player.fov_density; d++) {
+                        for(i = 1; i < width.screen*8; i++) {
+                            const ray_dir = rotate(player.x, player.y, player.x+i, player.y, player.dir+d/player.fov_density-player.fov/2);
+                            wall_color = "white";
+                            const hit_spot = check_pos(ray_dir[0], ray_dir[1]);
+                            if (hit_spot.tile_val == 1) {
+                                // try to check wall facing dir
+                                // causes glitch at tile seams
+                                const ray_dir_step_back = rotate(player.x, player.y, player.x+i-1, player.y, player.dir+d/player.fov_density-player.fov/2);
+                                const hit_spot_step_back = check_pos(ray_dir_step_back[0], ray_dir_step_back[1]);
+                                if (hit_spot_step_back.tile_val == 0) {
+                                    if(hit_spot_step_back.x == hit_spot.x) {
+                                        wall_color = "rgb(147,112,219)";
+                                        last_color = wall_color;
+                                    } else if(hit_spot_step_back.y == hit_spot.y) {
+                                        wall_color = "rgb(60,179,113)";
+                                        last_color = wall_color;
+                                    } else {
+                                        // goofy workaround for tile seam glitches, causes other less noticable problems at screen edge
+                                        wall_color = last_color;
+                                    }
+                                }
+                                // draw line and add collision to aray
+                                draw.line(overhead, player.x, player.y, ray_dir[0], ray_dir[1], "yellow", 1);
+                                ray_view.push({
+                                    d: vector_distance(player.x, player.y, ray_dir[0], ray_dir[1]),
+                                    a: player.dir+d/player.fov_density-player.fov/2,
+                                    c: wall_color
+                                });
+                                break;
+                            }
+                        }
+                    }
+                    ray_view.reverse();
+                }
+            };
+
+            
+            class cell {
+                constructor (state) {
+                this.state = state;
+                this.flood_state = state;
+                }
+            }
+            function clamp (val, min, max) {
+                return Math.min(Math.max(val, min), max);
+            }
+            function clamp_width (val) {
+                return Math.min(Math.max(val, 0), cells[0].length-1);
+            }
+            function clamp_height (val) {
+                return Math.min(Math.max(val, 0), cells.length-1);
+            }
+            function create(map_width, map_height) {
+                let create_cells = [];
+                for (let iY = 0; iY < map_height/size; iY++) {
+                    let group = [];
+                    for (let iX = 0; iX < map_width/size; iX++) {
+                        let new_cell = new cell(0);
+                        group.push(new_cell);
+                    }
+                    create_cells.push(group);
+                }
+                return create_cells;
+            }
+            function create_random(map_width, map_height) {
+                let create_cells = [];
+                for (let iY = 0; iY < map_height/size; iY++) {
+                    let group = [];
+                    for (let iX = 0; iX < map_width/size; iX++) {
+                let new_cell = null; 
+                if (Math.random() < rand_seed) {
+                new_cell = new cell(1);
+                } else {
+                new_cell = new cell(0);
+                }
+                        group.push(new_cell);
+                    }
+                    create_cells.push(group);
+                }
+                return create_cells;
+            }
+            function count_neighbors(x,y){
+                let neighbor_count = 0;
+
+                if (cells[clamp_height(y-1)][clamp_width(x-1)].state == 1) { neighbor_count += 1; }
+                if (cells[clamp_height(y-1)][clamp_width(x)].state == 1) { neighbor_count += 1; }
+                if (cells[clamp_height(y-1)][clamp_width(x+1)].state == 1) { neighbor_count += 1; }
+                
+                if (cells[clamp_height(y)][clamp_width(x-1)].state == 1) { neighbor_count += 1; }
+                if (cells[clamp_height(y)][clamp_width(x+1)].state == 1) { neighbor_count += 1; }
+                
+                if (cells[clamp_height(y+1)][clamp_width(x-1)].state == 1) { neighbor_count += 1; }
+                if (cells[clamp_height(y+1)][clamp_width(x)].state == 1) { neighbor_count += 1; }
+                if (cells[clamp_height(y+1)][clamp_width(x+1)].state == 1) { neighbor_count += 1; }
+
+                return neighbor_count;
+            }
+            function proc_cells() {
+                new_cells = create(map_width, map_height);
+                for (let y = 0; y < cells.length; y++) {
+                    for (let x = 0; x < cells[0].length; x++) {
+                        if (count_neighbors(x,y) >= 4) {
+                new_cells[y][x] = new cell(1);
+                        } else {
+                new_cells[y][x] = new cell(0);
+                        }
+                    }
+                }
+                cells = new_cells;
+            }
+
+            function check_pos(x, y) {
+                const checkX = (x-(x%grid_size))/grid_size;
+                const checkY = (y-(y%grid_size))/grid_size;
+                return {
+                    tile_val: map.layout[width.grid*checkY+checkX], 
+                    x: checkX,
+                    y: checkY
+                };
+            };
+
+            function vector_distance(x1, y1, x2, y2) {
+                return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+            };
+
+            function clamp(val, min, max) {
+                return Math.min(Math.max(val, min), max);
+            }
+
+            function rotate(cx, cy, x, y, angle) {
+                var radians = (Math.PI / 180) * angle,
+                    cos = Math.cos(radians),
+                    sin = Math.sin(radians),
+                    nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+                    ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+                return [nx, ny];
+            };
+
+            clear = {
+                overhead: function() {
+                    overhead.clearRect(0, 0, width.screen, height.screen);
+                    overhead.fillStyle = "#1e0033";
+                    overhead.fillRect(0, 0, width.screen, height.screen);
+                },
+                pov: function() {
+                    pov.clearRect(0, 0, width.screen, height.screen);
+                    pov.fillStyle = "#FF4500";
+                    pov.fillRect(0, height.screen/2 + player.look.angle, width.screen, height.screen);
+                    pov.fillStyle = "#F0FFF0";
+                    pov.fillRect(0, 0, width.screen, height.screen/2 + player.look.angle);
+                }
+            };
+
+            draw = {
+                square: function(obj, x, y, c, s) {
+                    obj.fillStyle = c;
+                    obj.fillRect(x, y, s, s);
+                },
+                rect: function(obj, x, y, c, sx, sy) {
+                    obj.fillStyle = c;
+                    obj.fillRect(x, y, sx, sy);
+                },
+                line: function(obj, x1, y1, x2, y2, c, w) {
+                    obj.strokeStyle = c;
+                    obj.lineWidth = w;
+                    obj.beginPath();
+                    obj.moveTo(x1, y1);
+                    obj.lineTo(x2, y2);
+                    obj.stroke();
+                }
+            };
+
+            function wall_view(view) {
+                const slice_size = width.screen / view.length;
+                for (i=0; i<view.length; i++) {
+                    const distance_mod = (height.screen*64/view[i].d)*0.5;
+                    // sucks ass, need to do some math to fix fisheye
+                    // and worse, the banding
+                    draw.rect(pov, 0+i*slice_size, height.screen/2 - distance_mod/2 + player.look.angle, view[i].c, slice_size+1, distance_mod);
+                    draw.rect(pov, 0+i*slice_size, height.screen/2 - distance_mod/2 + player.look.angle, "rgba(32,32,32, " + view[i].d/height.screen*0.5 +")", slice_size+1, distance_mod);
+                }
+            };
+
+            function update() {
+                clear.overhead();
+                map.draw_map(map);
+                clear.pov();
+
+                player.update();
+                wall_view(ray_view);
+                requestAnimationFrame(update);
+            };
+            
+            cells = create_random(map_width, map_height);
+            for (let i = 0; i < proc_loops; i++) {
+                proc_cells();
+            }
+            
+            for (let y = 0; y < cells.length; y++) {
+                for (let x = 0; x < cells[0].length; x++) {
+                    if(x == 0 || y == 0 || x == cells.length-1 || y == cells.length-1) {
+                        cells[y][x].state = 1;
+                    }
+                    map.layout.push(cells[y][x].state);
+                }
+            }
+            console.log(map);
+            update();
+
+        </script>
+    </body>
+</html>
