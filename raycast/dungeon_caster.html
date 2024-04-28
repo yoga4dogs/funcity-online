@@ -48,7 +48,7 @@
             }
             grid_size = height.screen / height.grid;
             scale = size*8;
-            rand_seed = 0.4;
+            rand_seed = 0.35;
             proc_loops = 8;
 
             document.getElementById("overhead_view").width = width.screen;
@@ -102,13 +102,13 @@
             };
             
             player = {
-                x: width.screen-grid_size*1.5,
-                y: height.screen-grid_size*1.5,
-                dir: 235,
+                x: width.screen/2,
+                y: height.screen/2,
+                dir: 135,
                 speed: 0.75,
                 turn_speed: 0.66,
                 size: 4, /* visual only */
-                fov: 72,
+                fov: 80,
                 fov_density: 8,
                 ray_view: [],
                 draw: function() { 
