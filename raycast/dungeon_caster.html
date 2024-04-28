@@ -35,8 +35,8 @@
 
         <script>
             
-            map_width = 32;
-            map_height = 32;
+            map_width = 64;
+            map_height = 64;
             size = 1;
             width = {
                 screen: 400,
@@ -47,7 +47,7 @@
                 grid: map_height
             }
             grid_size = height.screen / height.grid;
-            scale = size*8;
+            scale = size;
             rand_seed = 0.35;
             proc_loops = 8;
 
@@ -352,7 +352,7 @@
                     // sucks ass, need to do some math to fix fisheye
                     // and worse, the banding
                     draw.rect(pov, 0+i*slice_size, height.screen/2 - distance_mod/2 + player.look.angle, view[i].c, slice_size+1, distance_mod);
-                    draw.rect(pov, 0+i*slice_size, height.screen/2 - distance_mod/2 + player.look.angle, "rgba(32,32,32, " + view[i].d/height.screen*0.5 +")", slice_size+1, distance_mod);
+                    draw.rect(pov, 0+i*slice_size, height.screen/2 - distance_mod/2 + player.look.angle, "rgba(32,32,32, " + view[i].d/height.screen*1.0 +")", slice_size+1, distance_mod);
                 }
             };
 
