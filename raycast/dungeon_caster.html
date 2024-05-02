@@ -51,6 +51,8 @@
             rand_seed = 0.35;
             proc_loops = 8;
 
+            spawn_check = 1;
+
             document.getElementById("overhead_view").width = width.screen;
             document.getElementById("overhead_view").height = height.screen;
             overhead = document.getElementById("overhead_view").getContext("2d");
@@ -380,6 +382,12 @@
                 }
             }
             console.log(map);
+            player.dir = Math.random() * 360;
+            while (spawn_check != 0) {
+                player.x = Math.random() * width.screen;
+                player.y = Math.random() * height.screen;
+                spawn_check = check_pos(player.x, player.y).tile_val;
+            }
             update();
 
         </script>
