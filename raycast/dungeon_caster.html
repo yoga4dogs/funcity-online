@@ -27,7 +27,7 @@
         <canvas id="pov_view" width="400px" height="400px"></canvas>
         <br>
         <center>
-            <label>FOV:</label><input type="range" min="1" max="360" value="66" id="fov_slider" > </br>
+            <label>FOV:</label><input type="range" min="1" max="360" value="66" id="fov_slider" > <input type="button" id="regen" value="REGEN" onclick="generate()"/></br>
             WASD + Arrow keys to move.<br>
             <a href="http://funcity-online.com/" style='color: white;'>Home</a>
         </center>
@@ -52,6 +52,64 @@
             proc_loops = 8;
 
             spawn_check = 1;
+
+            function set_palettes() {
+                palettes = {
+                    computer:  {
+                        blank: "#010101",
+                        map: "#023612",
+                        sight: "#1fc742",
+                        player: "#025b18",
+                        floor: "#010101",
+                        ceiling: "#023612",
+                        wall1: "#1fc742",
+                        wall2: "#025b18"
+                    },
+                    default: {
+                        blank: "#1e0033",
+                        map: "RosyBrown",
+                        sight: "yellow",
+                        player: "red",
+                        floor: "#FF4500",
+                        ceiling: "#F0FFF0",
+                        wall1: "#9370DB",
+                        wall2: "#3CB371"
+                    },
+                    // default_alt: {
+                    //     blank: "#1e0033",
+                    //     map: "#545E75",
+                    //     sight: "#F2D0A4",
+                    //     player: "#3F826D",
+                    //     floor: "#C03221",
+                    //     ceiling: "#F2D0A4",
+                    //     wall1: "#3F826D",
+                    //     wall2: "#545E75"
+                    // },
+                    stone: {
+                        blank: "#6E8387",
+                        map: "#A4B8C4",
+                        sight: "#FCFAFA",
+                        player: "#C8D3D5",
+                        floor: "#6E8387",
+                        ceiling: "#FCFAFA",
+                        wall1: "#C8D3D5",
+                        wall2: "#A4B8C4"
+                    },
+                    random: {
+                        blank: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        map: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        sight: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        player: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        floor: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        ceiling: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        wall1: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")",
+                        wall2: "rgb(" + (Math.random() * 127 << 0) + ", " + (Math.random() * 127 << 0)  + ", " + (Math.random() * 127 << 0)  + ")"
+                    }
+                    
+                }
+            }
+            
+            
 
             document.getElementById("overhead_view").width = width.screen;
             document.getElementById("overhead_view").height = height.screen;
@@ -78,6 +136,7 @@
                 LEFT: 65, /* A */
                 DOWN: 83, /* S */
                 RIGHT: 68, /* D */
+                SPACE: 32,
                 isDown: function(keyCode) {
                     return this.pressed[keyCode];
                 },
@@ -97,7 +156,7 @@
                 draw_map: function() {
                     for(y=0; y < height.grid; y++) {
                         for(x=0; x < width.grid; x++) {
-                            if(map.layout[width.grid*y+x]==1) { draw.square(overhead, x*grid_size, y*grid_size, "RosyBrown", grid_size); }
+                            if(map.layout[width.grid*y+x]==1) { draw.square(overhead, x*grid_size, y*grid_size, colors.map, grid_size); }
                         }
                     }
                 }
@@ -114,8 +173,8 @@
                 fov_density: 4,
                 ray_view: [],
                 draw: function() { 
-                    draw.square(overhead, player.x-player.size/2, player.y-player.size/2, "red", player.size);
-                    this.draw_pointer();
+                    draw.square(overhead, player.x-player.size/2, player.y-player.size/2, colors.player, player.size);
+                    // this.draw_pointer();
                 },
                 draw_pointer: function() {
                     const pointer_rotation = rotate(player.x, player.y, player.x+10, player.y, player.dir);
@@ -169,6 +228,7 @@
                     if (key.isDown(key.LRIGHT)) this.turn(1);
                     this.ray_test();
                     this.draw();
+                    
                 },
                 // this is such a fucking mess i hate it
                 ray_test: function() {
@@ -186,10 +246,10 @@
                                 const hit_spot_step_back = check_pos(ray_dir_step_back[0], ray_dir_step_back[1]);
                                 if (hit_spot_step_back.tile_val == 0) {
                                     if(hit_spot_step_back.x == hit_spot.x) {
-                                        wall_color = "rgb(147,112,219)";
+                                        wall_color = colors.wall1;
                                         last_color = wall_color;
                                     } else if(hit_spot_step_back.y == hit_spot.y) {
-                                        wall_color = "rgb(60,179,113)";
+                                        wall_color = colors.wall2;
                                         last_color = wall_color;
                                     } else {
                                         // goofy workaround for tile seam glitches, causes other less noticable problems at screen edge
@@ -197,7 +257,7 @@
                                     }
                                 }
                                 // draw line and add collision to aray
-                                draw.line(overhead, player.x, player.y, ray_dir[0], ray_dir[1], "yellow", 1);
+                                draw.line(overhead, player.x, player.y, ray_dir[0], ray_dir[1], colors.sight, 1);
                                 ray_view.push({
                                     d: vector_distance(player.x, player.y, ray_dir[0], ray_dir[1]),
                                     a: player.dir+d/player.fov_density-player.fov/2,
@@ -316,14 +376,14 @@
             clear = {
                 overhead: function() {
                     overhead.clearRect(0, 0, width.screen, height.screen);
-                    overhead.fillStyle = "#1e0033";
+                    overhead.fillStyle = colors.blank;
                     overhead.fillRect(0, 0, width.screen, height.screen);
                 },
                 pov: function() {
                     pov.clearRect(0, 0, width.screen, height.screen);
-                    pov.fillStyle = "#FF4500";
+                    pov.fillStyle = colors.floor;
                     pov.fillRect(0, height.screen/2 + player.look.angle, width.screen, height.screen);
-                    pov.fillStyle = "#F0FFF0";
+                    pov.fillStyle = colors.ceiling;
                     pov.fillRect(0, 0, width.screen, height.screen/2 + player.look.angle);
                 }
             };
@@ -368,26 +428,38 @@
                 requestAnimationFrame(update);
             };
             
-            cells = create_random(map_width, map_height);
-            for (let i = 0; i < proc_loops; i++) {
-                proc_cells();
-            }
-            
-            for (let y = 0; y < cells.length; y++) {
-                for (let x = 0; x < cells[0].length; x++) {
-                    if(x == 0 || y == 0 || x == cells.length-1 || y == cells.length-1) {
-                        cells[y][x].state = 1;
+            function generate() {
+
+                set_palettes();
+                var keys = Object.keys(palettes);
+                // colors = palettes.random;
+                colors = palettes[keys[ keys.length * Math.random() << 0]];
+
+                cells = create_random(map_width, map_height);
+                for (let i = 0; i < proc_loops; i++) {
+                    proc_cells();
+                }
+                
+                map.layout = [];
+
+                for (let y = 0; y < cells.length; y++) {
+                    for (let x = 0; x < cells[0].length; x++) {
+                        if(x == 0 || y == 0 || x == cells.length-1 || y == cells.length-1) {
+                            cells[y][x].state = 1;
+                        }
+                        map.layout.push(cells[y][x].state);
                     }
-                    map.layout.push(cells[y][x].state);
+                }
+                player.dir = Math.random() * 360;
+                spawn_check = 1;
+                while (spawn_check != 0) {
+                    player.x = Math.random() * width.screen;
+                    player.y = Math.random() * height.screen;
+                    spawn_check = check_pos(player.x, player.y).tile_val;
                 }
             }
-            console.log(map);
-            player.dir = Math.random() * 360;
-            while (spawn_check != 0) {
-                player.x = Math.random() * width.screen;
-                player.y = Math.random() * height.screen;
-                spawn_check = check_pos(player.x, player.y).tile_val;
-            }
+
+            generate();
             update();
 
         </script>
