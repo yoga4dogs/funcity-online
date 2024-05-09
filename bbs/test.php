@@ -14,7 +14,6 @@
         div.inline {
             float:left; 
         }
-
         div.main {
             background-color: rgb(0 0 0 / 0.5); 
             position: absolute; 
@@ -29,8 +28,8 @@
 
 </head>
 <body>
-	<div style="display: none;">
-		<img id="tileset" src="ansi_charset.png" />
+	<div id="tileset_div">
+		<img id="tileset" src="ansi_charset.png" onload="hide_tileset()"/>
 	</div>
 	<div id="dom-target" style="display: none;">
 		<?php
@@ -46,23 +45,26 @@
     </div>
 
     <script>
-        var canvas_div = document.getElementById('display');
+        var canvas_div = document.getElementById("display");
         var canvas = canvas_div.getContext("2d");
-		var data_div = document.getElementById("dom-target");
-		var page_data = data_div.textContent.trim();
-		console.log(page_data);
+		var page_data_div = document.getElementById("dom-target");
+		var page_data = page_data_div.textContent.trim();
 
-        var display = {
-            col: 40,
+		// assumes 2 byte char
+		var baud = 1200;
+		var delay_ms = 1000/(baud/10)*2;
+		
+        var terminal = {
+            col: 80,
             row: 24
         };
-        var character = {
-            width: canvas_div.width/display.col,
-            height: canvas_div.height/display.row
+        var character_size = {
+            width: canvas_div.width/terminal.col,
+            height: canvas_div.height/terminal.row
         };
 		
 		var tileset = {
-			source: document.getElementById('tileset'),
+			source: document.getElementById("tileset"),
 			source_width: 256,
 			source_height: 256,
 			x_tiles: 16,
@@ -78,6 +80,9 @@
 			period: [14,2],
 			exclamation: [1,2],
 			question: [15,3],
+			colon: [10,3],
+			open_parentheses: [8,2],
+			close_parentheses: [9,2],
 			A: [1,4],
 			B: [2,4],
 			C: [3,4],
@@ -91,15 +96,16 @@
 			K: [11,4],
 			L: [12,4],
 			M: [13,4],
-			O: [14,4],
+			N: [14,4],
+			O: [15,4],
 			P: [0,5],
 			Q: [1,5],
 			R: [2,5],
 			S: [3,5],
 			T: [4,5],
 			U: [5,5],
-			V: [4,5],
-			W: [5,5],
+			V: [6,5],
+			W: [7,5],
 			X: [8,5],
 			Y: [9,5],
 			Z: [10,5],
@@ -116,7 +122,8 @@
 			k: [11,6],
 			l: [12,6],
 			m: [13,6],
-			o: [14,6],
+			n: [14,6],
+			o: [15,6],
 			p: [0,7],
 			q: [1,7],
 			r: [2,7],
@@ -150,37 +157,83 @@
         function mousemove(e){
             mouse.x = e.offsetX;	
             mouse.y = e.offsetY;	
-            mouse.grid_x = Math.abs(Math.floor(mouse.x / character.width));
-            mouse.grid_y = Math.abs(Math.floor(mouse.y / character.height));
+            mouse.grid_x = Math.abs(Math.floor(mouse.x / character_size.width));
+            mouse.grid_y = Math.abs(Math.floor(mouse.y / character_size.height));
         }
-		
-		function draw(x, y, c, s) {
+
+		function draw_rect(x, y, c, s) {
 			canvas.fillStyle = c;
 			canvas.fillRect(x, y, s, s);
 		};
-
-		function draw_char(x, y, index) {
-			canvas.drawImage(tileset.source, index[0]*tileset.char_width, index[1]*tileset.char_height, tileset.char_width, tileset.char_height, x*character.width, y*character.height, character.width, character.height);
+		function draw_char(x, y, input_char) {
+			// non alpha chars to index names
+			switch(input_char) {
+				case " ":
+					input_char = "space";
+					break;
+				case ",":
+					input_char = "comma";
+					break;
+				case "-":
+					input_char = "hyphen";
+					break;
+				case ".":
+					input_char = "period";
+					break;
+				case "!":
+					input_char = "exclamation";
+					break;
+				case "?":
+					input_char = "question";
+					break;
+				case ":":
+					input_char = "colon";
+					break;
+				case "(":
+					input_char = "open_parentheses";
+					break;
+				case ")":
+					input_char = "close_parentheses";
+					break;
+				case "\n":
+					return "newline";
+				default:
+					input_char = input_char;
+			}
+				index = character_index[input_char];
+				canvas.drawImage(tileset.source, index[0]*tileset.char_width, index[1]*tileset.char_height, tileset.char_width, tileset.char_height, x*character_size.width, y*character_size.height, character_size.width, character_size.height);
 		}
-
-        function update() {
+		
+		// add delay to character rendering
+		const delay = ms => new Promise(res => setTimeout(res, ms));
+        const update = async () => {
+			// background/clear screen
+			draw_rect(0, 0, "#FF00FF", canvas_div.width, canvas_div.height);
 			
-			if (mouse.button == 0) {
-                for (let iY = 0; iY < display.row; iY++) {
-                    for (let iX = 0; iX < display.col; iX++) {
-                        var keys = Object.keys(character_index);
-                        draw_char(iX, iY, character_index[keys[ keys.length * Math.random() << 0]]);
-                        // draw_char(iX, iY, character_index.a);
-                    }
-                }
-            }
-			
-            setTimeout(() => requestAnimationFrame(update), 50);
+			let iX = 0;
+			let iY = 0;
+			for (let i = 0; i < page_data.length; ++i) {
+				// draw_char(iX, iY, page_data[i]);
+				if (draw_char(iX, iY, page_data[i]) == "newline") {
+					iX = 0;
+					iY += 1;
+				} else {
+					iX += 1 % terminal.col;
+					if (iX >= terminal.col-1) { 
+						iX = 0;
+						iY += 1; 
+					}
+				}
+				await delay(delay_ms);
+			}
         }
 
-		console.log(character);
-
-        update();
+		function hide_tileset() {
+			// lets tileset img load before hiding, prevents blank screen when img not in cache
+			// then kicks off main/update loop
+			document.getElementById("tileset_div").style["display"] = "none";
+			update();
+		}
 
     </script>
 
