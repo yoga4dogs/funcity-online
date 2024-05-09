@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>[root@localhost ~]#</title>
+    <link rel="shortcut icon" type="image/jpg" href="../images/smile.gif">
+
+    <style>
+        body {
+            color: white;
+            background-image: url('../play/images/marbledark.jpg');
+            background-size: cover;
+            font-family: MingLiU-ExtB, Microsoft Yi Baiti;
+        }
+        div.inline {
+            float:left; 
+        }
+
+        div.main {
+            background-color: rgb(0 0 0 / 0.5); 
+            position: absolute; 
+            width: 1280px;
+            height: 800px;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+    </style>
+
+</head>
+<body>
+    <div class="main">
+	    <canvas id="display" onclick="mouseclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="800"></canvas>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('display');
+
+        var display = {
+            col: 80,
+            row: 24
+        };
+        var char = {
+            width: canvas.width/display.col,
+            height: canvas.height/display.row
+        };
+
+        var mouse = {
+            x: canvas.width/2,
+            y: canvas.height/2,
+            grid_x: 0,
+            grid_y: 0, 
+            button: 0
+        };
+
+        function mousedown(e) {
+            mouse.button = 1;
+        }
+        function mouseup(e) {
+            mouse.button = 0;
+        }
+        function mouseclick(e){
+            return;
+        }
+        function mousemove(e){
+            mouse.x = e.offsetX - display.ratio/2;	
+            mouse.y = e.offsetY - display.ratio/2;	
+            mouse.grid_x = Math.abs(Math.round(mouse.x / display.ratio));
+            mouse.grid_y = Math.abs(Math.round(mouse.y / display.ratio));
+        }
+
+        function loadFile(filePath) {
+            var result = null;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", filePath, false);
+            xmlhttp.send();
+            if (xmlhttp.status==200) {
+                result = xmlhttp.responseText;
+            }
+            return result;
+        }
+
+        function update() {
+            requestAnimationFrame(update);
+        }
+
+        update();
+
+    </script>
+
+
+	
