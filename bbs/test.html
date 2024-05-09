@@ -19,7 +19,7 @@
             background-color: rgb(0 0 0 / 0.5); 
             position: absolute; 
             width: 1280px;
-            height: 800px;
+            height: 768px;
             top: 50%;
             left: 50%;
             -ms-transform: translate(-50%, -50%);
@@ -29,25 +29,114 @@
 
 </head>
 <body>
+	<div style="display: none;">
+		<img id="tileset" src="ansi_charset.png" />
+	</div>
+	<div id="dom-target" style="display: none;">
+		<?php
+			$lines=file('text');
+			foreach ($lines as $line) {
+				echo htmlspecialchars($line);
+			}
+		?>
+	</div>
+
     <div class="main">
-	    <canvas id="display" onclick="mouseclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="800"></canvas>
+	    <canvas id="display" onclick="mouseclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="768"></canvas>
     </div>
 
     <script>
-        var canvas = document.getElementById('display');
+        var canvas_div = document.getElementById("display");
+        var canvas = canvas_div.getContext("2d");
+		var data_div = document.getElementById("dom-target");
+		var page_data = data_div.textContent.trim();
 
-        var display = {
+        var terminal = {
             col: 80,
             row: 24
         };
-        var char = {
-            width: canvas.width/display.col,
-            height: canvas.height/display.row
+        var character = {
+            width: canvas_div.width/terminal.col,
+            height: canvas_div.height/terminal.row
         };
+		
+		var tileset = {
+			source: document.getElementById('tileset'),
+			source_width: 256,
+			source_height: 256,
+			x_tiles: 16,
+			y_tiles: 16,
+			char_width: 16,
+			char_height: 16
+		};
+		
+		var character_index = {
+			space: [0,0],
+			comma: [12,2],
+			hyphen: [13,2],
+			period: [14,2],
+			exclamation: [1,2],
+			question: [15,3],
+			colon: [10,3],
+			open_parentheses: [8,2],
+			close_parentheses: [9,2],
+			A: [1,4],
+			B: [2,4],
+			C: [3,4],
+			D: [4,4],
+			E: [5,4],
+			F: [4,4],
+			G: [5,4],
+			H: [8,4],
+			I: [9,4],
+			J: [10,4],
+			K: [11,4],
+			L: [12,4],
+			M: [13,4],
+			N: [14,4],
+			O: [15,4],
+			P: [0,5],
+			Q: [1,5],
+			R: [2,5],
+			S: [3,5],
+			T: [4,5],
+			U: [5,5],
+			V: [6,5],
+			W: [7,5],
+			X: [8,5],
+			Y: [9,5],
+			Z: [10,5],
+			a: [1,6],
+			b: [2,6],
+			c: [3,6],
+			d: [4,6],
+			e: [5,6],
+			f: [6,6],
+			g: [7,6],
+			h: [8,6],
+			i: [9,6],
+			j: [10,6],
+			k: [11,6],
+			l: [12,6],
+			m: [13,6],
+			n: [14,6],
+			o: [15,6],
+			p: [0,7],
+			q: [1,7],
+			r: [2,7],
+			s: [3,7],
+			t: [4,7],
+			u: [5,7],
+			v: [6,7],
+			w: [7,7],
+			x: [8,7],
+			y: [9,7],
+			z: [10,7]
+		};
 
         var mouse = {
-            x: canvas.width/2,
-            y: canvas.height/2,
+            x: canvas_div.width/2,
+            y: canvas_div.height/2,
             grid_x: 0,
             grid_y: 0, 
             button: 0
@@ -63,25 +152,77 @@
             return;
         }
         function mousemove(e){
-            mouse.x = e.offsetX - display.ratio/2;	
-            mouse.y = e.offsetY - display.ratio/2;	
-            mouse.grid_x = Math.abs(Math.round(mouse.x / display.ratio));
-            mouse.grid_y = Math.abs(Math.round(mouse.y / display.ratio));
+            mouse.x = e.offsetX;	
+            mouse.y = e.offsetY;	
+            mouse.grid_x = Math.abs(Math.floor(mouse.x / character.width));
+            mouse.grid_y = Math.abs(Math.floor(mouse.y / character.height));
         }
-
-        function loadFile(filePath) {
-            var result = null;
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET", filePath, false);
-            xmlhttp.send();
-            if (xmlhttp.status==200) {
-                result = xmlhttp.responseText;
-            }
-            return result;
-        }
+		
+		function draw_rect(x, y, c, s) {
+			canvas.fillStyle = c;
+			canvas.fillRect(x, y, s, s);
+		};
+		function draw_char(x, y, input_char) {
+			// non alpha chars to index names
+			switch(input_char) {
+				case " ":
+					input_char = "space";
+					break;
+				case ",":
+					input_char = "comma";
+					break;
+				case "-":
+					input_char = "hyphen";
+					break;
+				case ".":
+					input_char = "period";
+					break;
+				case "!":
+					input_char = "exclamation";
+					break;
+				case "?":
+					input_char = "question";
+					break;
+				case ":":
+					input_char = "colon";
+					break;
+				case "(":
+					input_char = "open_parentheses";
+					break;
+				case ")":
+					input_char = "close_parentheses";
+					break;
+				case "\n":
+					return "newline";
+				default:
+					input_char = input_char;
+			}
+				index = character_index[input_char];
+				canvas.drawImage(tileset.source, index[0]*tileset.char_width, index[1]*tileset.char_height, tileset.char_width, tileset.char_height, x*character.width, y*character.height, character.width, character.height);
+		}
+		
 
         function update() {
-            requestAnimationFrame(update);
+			// background/clear screen
+			draw_rect(0, 0, "#FF00FF", canvas_div.width, canvas_div.height);
+			
+			let iX = 0;
+			let iY = 0;
+			for (let i = 0; i < page_data.length; ++i) {
+				// draw_char(iX, iY, page_data[i]);
+				if (draw_char(iX, iY, page_data[i]) == "newline") {
+					iX = 0;
+					iY += 1;
+				} else {
+					iX += 1 % terminal.col;
+					if (iX >= terminal.col-1) { 
+						iX = 0;
+						iY += 1; 
+					}
+				}
+			}
+			// wait
+            // setTimeout(() => requestAnimationFrame(update), 50);
         }
 
         update();
