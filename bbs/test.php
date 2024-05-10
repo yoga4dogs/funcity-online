@@ -41,25 +41,28 @@
 	</div>
 
     <div class="main">
-	    <canvas id="display" onclick="mouseclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="768"></canvas>
+	    <canvas id="display" onclick="mouseclick(event)" oncontextmenu="mouserightclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="768"></canvas>
     </div>
-
+	
     <script>
-        var canvas_div = document.getElementById("display");
+		var canvas_div = document.getElementById("display");
         var canvas = canvas_div.getContext("2d");
 		var page_data_div = document.getElementById("dom-target");
 		var page_data = page_data_div.textContent.trim();
-
-		// assumes 2 byte char
-		var baud = 1200;
-		var delay_ms = 1000/(baud/10)*2;
 		
+		// assumes 2 byte char
+		var baud = 9600;
+		var delay_ms = Math.floor(1000/(baud/10)*2);
+		
+		var iX = 0;
+		var iY = 0;
+
         var terminal = {
-            col: 80,
+			col: 80,
             row: 24
         };
         var character_size = {
-            width: canvas_div.width/terminal.col,
+			width: canvas_div.width/terminal.col,
             height: canvas_div.height/terminal.row
         };
 		
@@ -83,13 +86,14 @@
 			colon: [10,3],
 			open_parentheses: [8,2],
 			close_parentheses: [9,2],
+			quote: [3,2],
 			A: [1,4],
 			B: [2,4],
 			C: [3,4],
 			D: [4,4],
 			E: [5,4],
-			F: [4,4],
-			G: [5,4],
+			F: [6,4],
+			G: [7,4],
 			H: [8,4],
 			I: [9,4],
 			J: [10,4],
@@ -134,7 +138,17 @@
 			w: [7,7],
 			x: [8,7],
 			y: [9,7],
-			z: [10,7]
+			z: [10,7],
+			0: [0,3],
+			1: [1,3],
+			2: [2,3],
+			3: [3,3],
+			4: [4,3],
+			5: [5,3],
+			6: [6,3],
+			7: [7,3],
+			8: [8,3],
+			9: [9,3]
 		};
 
         var mouse = {
@@ -145,6 +159,7 @@
             button: 0
         };
 
+
         function mousedown(e) {
             mouse.button = 1;
         }
@@ -152,8 +167,13 @@
             mouse.button = 0;
         }
         function mouseclick(e){
-            return;
+			if (iY == terminal.row-1) {
+            	iY += 1;
+			}
         }
+		function mouserightclick(e) {
+			return;
+		}
         function mousemove(e){
             mouse.x = e.offsetX;	
             mouse.y = e.offsetY;	
@@ -210,9 +230,24 @@
 			// background/clear screen
 			draw_rect(0, 0, "#FF00FF", canvas_div.width, canvas_div.height);
 			
-			let iX = 0;
-			let iY = 0;
+			iX = 0;
+			iY = 0;
+			
 			for (let i = 0; i < page_data.length; ++i) {
+				if (iY == terminal.row-1) {
+					more_msg = "(MORE)                                                                          ";
+					for (let iM = 0; iM < more_msg.length; ++iM) {
+						draw_char(iX, iY, more_msg[iM]);
+						iX += 1 % terminal.col;
+					}
+					i -=1;
+					iY += 0
+				} else if (iY >= terminal.row) {
+					draw_rect(0, 0, "#FF00FF", canvas_div.width, canvas_div.height);
+					iX = 0;
+					iY = 0; 
+					i -= 1;
+				} else
 				// draw_char(iX, iY, page_data[i]);
 				if (draw_char(iX, iY, page_data[i]) == "newline") {
 					iX = 0;
@@ -224,7 +259,8 @@
 						iY += 1; 
 					}
 				}
-				await delay(delay_ms);
+
+				await delay(1);
 			}
         }
 
