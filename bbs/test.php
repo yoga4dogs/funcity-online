@@ -59,7 +59,7 @@
 
         var terminal = {
 			col: 80,
-            row: 24
+            row: 25
         };
         var character_size = {
 			width: canvas_div.width/terminal.col,
@@ -86,7 +86,7 @@
 			colon: [10,3],
 			open_parentheses: [8,2],
 			close_parentheses: [9,2],
-			quote: [3,2],
+			quote: [2,2],
 			A: [1,4],
 			B: [2,4],
 			C: [3,4],
@@ -214,6 +214,9 @@
 					break;
 				case ")":
 					input_char = "close_parentheses";
+					break;
+				case '"':
+					input_char = "quote";
 					break;
 				case "\n":
 					return "newline";
