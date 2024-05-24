@@ -6,12 +6,12 @@ echo New Post
 
 read input
 
-sed -i "1i\\ " /var/www/html/bbs/text
-sed -i "1i\\$now" /var/www/html/bbs/text
 sed -i "1i\\$input" /var/www/html/bbs/text
+sed -i "1i\\$now" /var/www/html/bbs/text
 
-sed -i '/INSERT-->/a '"</div><br>"'' /var/www/html/index.php
-sed -i '/INSERT-->/a '"<img src='./images/peter.png'/>"'' /var/www/html/index.php
-sed -i '/INSERT-->/a '"<a href='#$now'><i>$now</i></a><br>"'' /var/www/html/index.php
-sed -i '/INSERT-->/a '"$input<br>"'' /var/www/html/index.php
-sed -i '/INSERT-->/a '"<div id='$now'>"'' /var/www/html/index.php
+
+# sed -i '/INSERT-->/a '"</div><br>"'' /var/www/html/index.html
+# sed -i '/INSERT-->/a '"<img src='./images/peter.png'/>"'' /var/www/html/index.html
+# sed -i '/INSERT-->/a '"<a href='#$now'><i>$now</i></a><br>"'' /var/www/html/index.html
+# sed -i '/INSERT-->/a '"$input<br>"'' /var/www/html/index.html
+# sed -i '/INSERT-->/a '"<div id='$now'>"'' /var/www/html/index.html

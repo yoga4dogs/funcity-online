@@ -70,6 +70,7 @@
 	<a href="./images/3dmisc/mylar2.jpg"><img src="./images/3dmisc/mylar2.jpg" width="225" height="225"/></a>
 	<a href="./images/3dmisc/thing.jpg"><img src="./images/3dmisc/thing.jpg" width="225" height="225"/></a>
 	<a href="./images/3dmisc/what.jpg"><img src="./images/3dmisc/what.jpg" width="225" height="225"/></a>
+	<a href="./images/3dmisc/nightclub.png"><img src="./images/3dmisc/nightclub.png" width="720px"/></a>
 	<video height="420" controls loop>
 		  <source src="./video/spine.mp4" type="video/mp4">
 	</video>

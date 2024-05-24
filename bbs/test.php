@@ -15,21 +15,16 @@
             float:left; 
         }
         div.main {
-            background-color: rgb(0 0 0 / 0.5); 
-            position: absolute; 
-            width: 1280px;
-            height: 768px;
-            top: 50%;
-            left: 50%;
-            -ms-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
+            width: 640;
+            height: 400;
+			padding: 2px;
         }
     </style>
 
 </head>
 <body>
 	<div id="tileset_div">
-		<img id="tileset" src="ansi_charset.png" onload="hide_tileset()"/>
+		<img id="tileset" src="/bbs/ansi_charset.png" onload="hide_tileset()"/>
 	</div>
 	<div id="dom-target" style="display: none;">
 		<?php
@@ -41,7 +36,7 @@
 	</div>
 
     <div class="main">
-	    <canvas id="display" onclick="mouseclick(event)" oncontextmenu="mouserightclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="1280" height="768"></canvas>
+	    <canvas id="display" onclick="mouseclick(event)" oncontextmenu="mouserightclick(event)" onmousemove="mousemove(event)" onmousedown="mousedown(event)" onmouseup="mouseup(event)" width="480" height="300"></canvas>
     </div>
 	
     <script>
